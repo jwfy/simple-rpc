@@ -93,7 +93,7 @@ public class DefaultMessageProtocol implements MessageProtocol {
         if (inputStream == null) {
             throw new RuntimeException("input为空");
         }
-        return fun2(inputStream);
+        return fun3(inputStream);
     }
 
     private byte[] fun1(InputStream inputStream) throws IOException {
@@ -119,6 +119,7 @@ public class DefaultMessageProtocol implements MessageProtocol {
 
     /**
      * 有问题的fun3，调用之后会阻塞在read，可通过jstack查看相关信息
+     * 2019年07月18日18:53:29 问题已解决，添加socket.shutdownxxx即可
      * @param inputStream
      * @return
      * @throws IOException
@@ -129,7 +130,7 @@ public class DefaultMessageProtocol implements MessageProtocol {
 
         byte[] buff = new byte[bufesize];
         int rc = 0;
-        while ((rc = inputStream.read(buff, 0, bufesize)) > 0) {
+        while ((rc = inputStream.read(buff, 0, bufesize)) != -1) {
             byteArrayOutputStream.write(buff, 0, rc);
             buff = new byte[bufesize];
         }

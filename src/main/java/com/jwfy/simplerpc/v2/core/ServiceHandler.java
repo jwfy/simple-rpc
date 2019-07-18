@@ -91,6 +91,9 @@ public class ServiceHandler {
                 OutputStream outputStream = socket.getOutputStream();
 
                 RpcRequest request = messageProtocol.serviceToRequest(inputStream);
+
+                socket.shutdownInput();
+
                 RpcResponse response = rpcService.invoke(request);
 
                 System.out.println("request:[" + request + "], response:[" + response + "]");

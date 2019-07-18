@@ -43,6 +43,8 @@ public class ClientHandler {
 
             messageProtocol.clientToRequest(request, outputStream);
 
+            socket.shutdownOutput();
+
             response = messageProtocol.clientGetResponse(inputStream);
         } catch (IOException e) {
             e.printStackTrace();
