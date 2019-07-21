@@ -2,6 +2,8 @@ package com.jwfy.simplerpc.v2.core;
 
 
 import com.jwfy.simplerpc.v2.protocol.MessageProtocol;
+import com.jwfy.simplerpc.v2.protocol.RpcRequest;
+import com.jwfy.simplerpc.v2.protocol.RpcResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,7 +45,7 @@ public class ClientHandler {
 
             messageProtocol.clientToRequest(request, outputStream);
 
-            socket.shutdownOutput();
+//            socket.shutdownOutput();
 
             response = messageProtocol.clientGetResponse(inputStream);
         } catch (IOException e) {

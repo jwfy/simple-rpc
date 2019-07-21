@@ -1,5 +1,8 @@
 package com.jwfy.simplerpc.v2.core;
 
+import com.jwfy.simplerpc.v2.protocol.RpcRequest;
+import com.jwfy.simplerpc.v2.protocol.RpcResponse;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;

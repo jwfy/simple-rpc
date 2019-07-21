@@ -2,8 +2,8 @@ package com.jwfy.simplerpc.v2.config;
 
 
 import com.alibaba.fastjson.JSON;
-import com.jwfy.simplerpc.v2.core.RpcService;
 import com.jwfy.simplerpc.v2.domain.ServiceType;
+import com.jwfy.simplerpc.v2.service.RpcService;
 
 import java.io.Serializable;
 import java.net.InetAddress;

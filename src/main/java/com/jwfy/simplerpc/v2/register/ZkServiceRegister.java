@@ -4,7 +4,7 @@ package com.jwfy.simplerpc.v2.register;
 import com.jwfy.simplerpc.v2.balance.DefaultLoadBalance;
 import com.jwfy.simplerpc.v2.balance.LoadBalance;
 import com.jwfy.simplerpc.v2.config.BasicConfig;
-import com.jwfy.simplerpc.v2.core.RpcRequest;
+import com.jwfy.simplerpc.v2.protocol.RpcRequest;
 import com.jwfy.simplerpc.v2.domain.ServiceType;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;

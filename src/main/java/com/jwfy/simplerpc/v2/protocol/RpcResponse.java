@@ -1,4 +1,4 @@
-package com.jwfy.simplerpc.v2.core;
+package com.jwfy.simplerpc.v2.protocol;
 
 import com.alibaba.fastjson.JSON;
 
@@ -10,11 +10,21 @@ import java.io.Serializable;
 public class RpcResponse<T> implements Serializable {
     private static final long serialVersionUID = -6786762199234477466L;
 
+    private String requestId;
+
     private T result;
 
     private Boolean isError;
 
     private String errorMessage;
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
 
     public Boolean getError() {
         return isError;

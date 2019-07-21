@@ -1,7 +1,7 @@
 package com.jwfy.simplerpc.v2.demo;
 
 
-import com.jwfy.simplerpc.v2.core.RpcService;
+import com.jwfy.simplerpc.v2.service.RpcService;
 
 /**
  * @author jwfy

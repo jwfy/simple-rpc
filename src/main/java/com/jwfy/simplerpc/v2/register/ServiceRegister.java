@@ -2,7 +2,7 @@ package com.jwfy.simplerpc.v2.register;
 
 
 import com.jwfy.simplerpc.v2.config.BasicConfig;
-import com.jwfy.simplerpc.v2.core.RpcRequest;
+import com.jwfy.simplerpc.v2.protocol.RpcRequest;
 import com.jwfy.simplerpc.v2.domain.ServiceType;
 
 import java.net.InetSocketAddress;

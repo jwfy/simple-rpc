@@ -18,7 +18,7 @@ public class Client {
 
         Calculate<Integer> calculateProxy = rpcClient.getInstance(Calculate.class);
 
-        for(int i=0; i< 200; i++) {
+        for(int i=0; i< 1; i++) {
             new Thread(() -> {
                 long start = System.currentTimeMillis();
                 int s1 = new Random().nextInt(100);
