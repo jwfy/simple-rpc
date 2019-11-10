@@ -17,7 +17,7 @@ import java.lang.reflect.Method;
 import java.util.concurrent.*;
 
 /**
- * @author junhong
+ * @author jwfy
  */
 public class RpcInvoke {
 

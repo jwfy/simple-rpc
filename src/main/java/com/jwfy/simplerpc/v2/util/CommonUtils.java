@@ -3,7 +3,7 @@ package com.jwfy.simplerpc.v2.util;
 import java.net.InetSocketAddress;
 
 /**
- * @author junhong
+ * @author jwfy
  */
 public class CommonUtils {
 

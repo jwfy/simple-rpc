@@ -9,7 +9,7 @@ import java.util.concurrent.CountDownLatch;
 /**
  * 利用栅栏锁完成数据的控制读取
  *
- * @author junhong
+ * @author jwfy
  */
 public class RpcResponseFuture {
 

@@ -1,7 +1,7 @@
 package com.jwfy.simplerpc.v2.demo;
 
 /**
- * @author junhong
+ * @author jwfy
  */
 public class StudentService implements IStudentService {
 

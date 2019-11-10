@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author junhong
+ * @author jwfy
  */
 public class RequestManager {
 

@@ -18,7 +18,7 @@ import static org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent.
 import static org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent.Type.CHILD_REMOVED;
 
 /**
- * @author junhong
+ * @author jwfy
  */
 public class ZkServiceDiscovery implements ServiceDiscovery {
 

@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 /**
- * @author junhong
+ * @author jwfy
  */
 public class RpcDecoder extends ByteToMessageDecoder {
 

@@ -21,7 +21,7 @@ import java.util.concurrent.CountDownLatch;
 /**
  * 在链接操作中，需要持有和管理clienthandler
  *
- * @author junhong
+ * @author jwfy
  */
 public class ClientConnection  {
 

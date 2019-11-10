@@ -3,7 +3,7 @@ package com.jwfy.simplerpc.v2.register;
 import com.jwfy.simplerpc.v2.domain.ServiceType;
 
 /**
- * @author junhong
+ * @author jwfy
  */
 public class RegisterConfig {
 
