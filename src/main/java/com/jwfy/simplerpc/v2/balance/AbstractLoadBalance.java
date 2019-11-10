@@ -1,5 +1,7 @@
 package com.jwfy.simplerpc.v2.balance;
 
+import io.netty.channel.Channel;
+
 import java.util.List;
 
 /**
@@ -8,15 +10,15 @@ import java.util.List;
 public abstract class AbstractLoadBalance implements LoadBalance {
 
     @Override
-    public String balance(List<String> addressList) {
-        if (addressList == null || addressList.isEmpty()) {
+    public Channel balance(List<Channel> channelList) {
+        if (channelList == null || channelList.isEmpty()) {
             return null;
         }
-        if (addressList.size() == 1) {
-            return addressList.get(0);
+        if (channelList.size() == 1) {
+            return channelList.get(0);
         }
-        return doLoad(addressList);
+        return doLoad(channelList);
     }
 
-    abstract String doLoad(List<String> addressList);
+    abstract Channel doLoad(List<Channel> addressList);
 }

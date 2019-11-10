@@ -1,7 +1,7 @@
 package com.jwfy.simplerpc.v2.protocol;
 
 
-import com.jwfy.simplerpc.v2.serialize.JavaInnerSerialize;
+import com.jwfy.simplerpc.v2.serialize.HessianSerialize;
 import com.jwfy.simplerpc.v2.serialize.SerializeProtocol;
 
 import java.io.ByteArrayOutputStream;
@@ -20,8 +20,8 @@ public class DefaultMessageProtocol implements MessageProtocol {
     private SerializeProtocol serializeProtocol;
 
     public DefaultMessageProtocol() {
-        // this.serializeProtocol = new HessianSerialize();
-        this.serializeProtocol = new JavaInnerSerialize();
+        this.serializeProtocol = new HessianSerialize();
+        // this.serializeProtocol = new JavaInnerSerialize();
     }
 
     public void setSerializeProtocol(SerializeProtocol serializeProtocol) {
@@ -48,7 +48,7 @@ public class DefaultMessageProtocol implements MessageProtocol {
     public <T> void serviceGetResponse(RpcResponse<T> response, OutputStream outputStream) {
         try {
             // 3、把response 序列化成bytes 传给客户端
-            byte[] bytes = serializeProtocol.serialize(RpcResponse.class);
+            byte[] bytes = serializeProtocol.serialize(response);
             // System.out.println("[3]服务端序列化出bytes:[" + new String(bytes) + "], length:" + bytes.length);
             System.out.println("[3]服务端序列化出bytes length:" + bytes.length);
             outputStream.write(bytes);
@@ -61,7 +61,7 @@ public class DefaultMessageProtocol implements MessageProtocol {
     public void clientToRequest(RpcRequest request, OutputStream outputStream) {
         try {
             // 1、先把这个request -> bytes 序列化掉
-            byte[] bytes = serializeProtocol.serialize(RpcRequest.class);
+            byte[] bytes = serializeProtocol.serialize(request);
             // System.out.println("[1]客户端序列化出bytes:[" + new String(bytes) + "], length:" + bytes.length);
             System.out.println("[1]客户端序列化出bytes length:" + bytes.length);
             outputStream.write(bytes);

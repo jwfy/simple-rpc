@@ -3,8 +3,7 @@ package com.jwfy.simplerpc.v2.protocol;
 import com.alibaba.fastjson.JSON;
 
 import java.io.Serializable;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.util.UUID;
 
 /**
  * @author jwfy
@@ -27,13 +26,7 @@ public class RpcRequest implements Serializable {
     private  Class<?>[] parameterTypes;
 
     public RpcRequest() {
-        String ip = "127.0.0.1";
-        try {
-            ip = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-        this.requestId = ip + "#" + System.currentTimeMillis();
+        this.requestId = UUID.randomUUID().toString();
     }
 
     public String getRequestId() {

@@ -4,6 +4,8 @@ import com.jwfy.simplerpc.v2.serialize.SerializeProtocol;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -11,6 +13,8 @@ import java.util.List;
  * @author junhong
  */
 public class RpcDecoder extends ByteToMessageDecoder {
+
+    private static final Logger logger = LoggerFactory.getLogger(RpcEncoder.class);
 
     private Class<?> clazz;
 
@@ -23,11 +27,15 @@ public class RpcDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
+        long startTime = System.currentTimeMillis();
         byte[] data = new byte[byteBuf.readableBytes()];
         byteBuf.readBytes(data);
 
+        // logger.debug("decode bytes with len:{}, data:{}", data.length, data);
+
         Object obj = this.serializeProtocol.deserialize(clazz, data);
         list.add(obj);
+        logger.debug("反序列化 length:{}, 耗时:{}", byteBuf.readableBytes(), System.currentTimeMillis() - startTime);
     }
 
 }

@@ -1,80 +1,55 @@
 package com.jwfy.simplerpc.v2.service;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.jwfy.simplerpc.v2.protocol.RpcRequest;
-import com.jwfy.simplerpc.v2.protocol.RpcResponse;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-
-import java.util.concurrent.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * socket 处理入口
+ * 处理入口
  *
  * @author jwfy
  */
 public class ServiceHandler extends SimpleChannelInboundHandler<RpcRequest> {
 
-    private ThreadPoolExecutor executor = null;
+    private static final Logger logger = LoggerFactory.getLogger(ServiceHandler.class);
 
-    private RpcService rpcService;
+    private RpcInvoke rpcInvoke;
 
-    public ServiceHandler(RpcService rpcService) {
-        this.rpcService = rpcService;
+    public ServiceHandler(RpcInvoke rpcInvoke) {
+        this.rpcInvoke = rpcInvoke;
+    }
 
-        ThreadFactory commonThreadName = new ThreadFactoryBuilder()
-                .setNameFormat("Handler-Task-%d")
-                .build();
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        logger.warn("收到连接请求:{}", ctx.channel());
+    }
 
-        this.executor = new ThreadPoolExecutor(
-                10,
-                10,
-                2,
-                TimeUnit.SECONDS,
-                new ArrayBlockingQueue<>(200),
-                commonThreadName, new RejectedExecutionHandler() {
-            @Override
-            public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-                SocketTask socketTask = (SocketTask) r;
-            }
-        });
+    @Override
+    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+        logger.info("取消注册 channel:{}", ctx.channel());
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        logger.warn("链接断开请求:{}", ctx.channel());
+    }
+
+    @Override
+    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+        logger.warn("收到注册请求:{}", ctx.channel());
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext context, RpcRequest request) throws Exception {
-        // 接收到了服务端的request请求，需要调用给rpcservice进行处理
-        this.executor.execute(new SocketTask(context, request));
+        logger.info("收到请求:" + request);
+        this.rpcInvoke.invoke(context, request);
     }
 
-    public RpcService getRpcService() {
-        return rpcService;
-    }
-
-    public void setRpcService(RpcService rpcService) {
-        this.rpcService = rpcService;
-    }
-
-    class SocketTask implements Runnable {
-
-        private ChannelHandlerContext context;
-        private RpcRequest request;
-
-        public SocketTask(ChannelHandlerContext context, RpcRequest request) {
-            this.context = context;
-            this.request = request;
-        }
-
-        @Override
-        public void run() {
-            RpcResponse response = rpcService.invoke(request);
-            context.writeAndFlush(response).addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                    System.out.println("返回响应结果：" + request.getRequestId());
-                }
-            });
-        }
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        logger.error("出现异常:{}, cause:{}", ctx.channel(), cause);
+        ctx.close();
     }
 }

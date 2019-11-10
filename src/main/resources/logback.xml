@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+    <!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径-->
+    <property name="LOG_HOME" value="${app.userLog.dir:-logs}"/>
+    <timestamp key="bySecond" datePattern="yyyyMMdd'T'HHmmss"/>
+    <contextName>card-manager</contextName>
+
+    <include resource="logback-include.xml"/>
+
+    <logger name="com.jwfy.simplerpc" level="DEBUG" addtivity="true">
+        <appender-ref ref="INFO-FILE"/>
+        <appender-ref ref="DEBUG-FILE"/>
+        <appender-ref ref="ERROR-FILE"/>
+    </logger>
+
+    <!-- 日志输出级别 -->
+    <root level="INFO">
+        <if condition='property("LOG_HOME").equals("logs")'>
+            <then>
+                <appender-ref ref="STDOUT"/>
+            </then>
+            <else>
+                <appender-ref ref="STD-FILE"/>
+            </else>
+        </if>
+    </root>
+</configuration>

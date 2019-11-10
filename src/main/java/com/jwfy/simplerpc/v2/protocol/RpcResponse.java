@@ -14,7 +14,7 @@ public class RpcResponse<T> implements Serializable {
 
     private T result;
 
-    private Boolean isError;
+    private Boolean error;
 
     private String errorMessage;
 
@@ -27,11 +27,11 @@ public class RpcResponse<T> implements Serializable {
     }
 
     public Boolean getError() {
-        return isError;
+        return error;
     }
 
     public void setError(Boolean error) {
-        isError = error;
+        this.error = error;
     }
 
     public String getErrorMessage() {

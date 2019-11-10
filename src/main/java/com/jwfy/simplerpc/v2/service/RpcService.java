@@ -2,15 +2,17 @@ package com.jwfy.simplerpc.v2.service;
 
 
 import com.jwfy.simplerpc.v2.config.ServiceConfig;
-import com.jwfy.simplerpc.v2.protocol.RpcRequest;
-import com.jwfy.simplerpc.v2.protocol.RpcResponse;
+import com.jwfy.simplerpc.v2.register.RegisterConfig;
 import com.jwfy.simplerpc.v2.register.ServiceRegister;
 import com.jwfy.simplerpc.v2.register.ZkServiceRegister;
 import com.jwfy.simplerpc.v2.serialize.HessianSerialize;
 import com.jwfy.simplerpc.v2.serialize.SerializeProtocol;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,34 +20,44 @@ import java.util.Map;
  */
 public class RpcService {
 
+    private static final Logger logge = LoggerFactory.getLogger(RpcService.class);
+
+    private int port;
+
     /**
      * k 是接口的全名称
      * v 是对应的对象包含的详细信息
      */
-    private Map<String, ServiceConfig> serviceConfigMap = new HashMap<>();
+    private Map<String, ServiceConfig> serviceConfigMap;
 
-    private int port;
-
+    /**
+     * 服务注册器
+     */
     private ServiceRegister serviceRegister;
 
     /**
-     * 现在替换成nio模型了
+     * 服务连接器
      */
     private ServiceConnection serviceConnection;
 
-    private ServiceHandler serviceHandler;
+    /**
+     * 序列号工具
+     */
+    private SerializeProtocol serializeProtocol;
 
-    private SerializeProtocol serializeProtocol = new HessianSerialize();
+    private RpcInvoke rpcInvoke;
 
     public RpcService(int port) {
         this.port = port;
-        this.serviceHandler = new ServiceHandler(this);
-
-        this.serviceRegister = new ZkServiceRegister();
+        this.serviceConfigMap = new HashMap<>(64);
+        this.serviceRegister = new ZkServiceRegister(new RegisterConfig());
+        this.serializeProtocol = new HessianSerialize();
+        this.serviceConnection = new ServiceConnection(this);
+        this.rpcInvoke = new RpcInvoke(this);
     }
 
-    public void setSerializeProtocol(SerializeProtocol serializeProtocol) {
-        this.serializeProtocol = serializeProtocol;
+    public SerializeProtocol getSerializeProtocol() {
+        return serializeProtocol;
     }
 
     public <T> void addService(Class<T> interfaceClass, T ref) {
@@ -54,18 +66,13 @@ public class RpcService {
         serviceConfigMap.put(interfaceName, serviceConfig);
     }
 
-    private void register() {
-        // 服务注册，在网络监听启动之前就需要完成
-        serviceConfigMap.values().forEach(serviceRegister::register);
-    }
-
     public void start() {
-        this.register();
-        System.out.println("服务注册完成");
-
-        this.serviceConnection = new ServiceConnection();
-        this.serviceConnection.init(port, serializeProtocol, serviceHandler);
-        this.serviceConnection.start();
+        List<ServiceConfig> serviceConfigList = new ArrayList<>(serviceConfigMap.values());
+        if (serviceConfigList.isEmpty()) {
+            throw new IllegalArgumentException("未注册有效服务");
+        }
+        // 服务连接&注册
+        this.serviceConnection.start(serviceConfigList);
 
         // 优雅关闭
         Runtime.getRuntime().addShutdownHook(new Thread(()-> {
@@ -74,51 +81,26 @@ public class RpcService {
     }
 
     public int getPort() {
-        return port;
+        return this.port;
     }
 
-    public void setPort(int port) {
-        this.port = port;
+    public ServiceConfig getServiceConfig(String key) {
+        return this.serviceConfigMap.get(key);
     }
 
-    public <K, V> RpcResponse invoke(RpcRequest request) {
-        if (request == null) {
-            RpcResponse<V> response = new RpcResponse();
-            response.setRequestId(request.getRequestId());
-            response.setResult(null);
-            response.setError(true);
-            response.setErrorMessage("未知异常");
+    public ServiceRegister getServiceRegister() {
+        return serviceRegister;
+    }
 
-            return response;
-        }
-
-        String className = request.getClassName();
-        ServiceConfig<K> serviceConfig = serviceConfigMap.get(className);
-        // 暂时不考虑没有对应serviceconfig的情况
-
-        K ref = serviceConfig.getRef();
-        try {
-            Method method = ref.getClass().getMethod(
-                    request.getMethodName(),
-                    request.getParameterTypes());
-
-            V result = (V) method.invoke(ref, request.getArguments());
-
-            RpcResponse<V> response = new RpcResponse();
-            response.setRequestId(request.getRequestId());
-            response.setResult(result);
-            response.setError(false);
-            response.setErrorMessage("");
-
-            return response;
-        } catch (Exception e) {
-        }
-        return null;
+    public RpcInvoke getRpcInvoke() {
+        return rpcInvoke;
     }
 
     public void close() {
+        this.serviceConfigMap.clear();
+        this.serviceRegister.close();
         this.serviceConnection.close();
-        System.out.println("服务端关闭了");
+        logge.warn("服务端关闭了");
     }
 
 }

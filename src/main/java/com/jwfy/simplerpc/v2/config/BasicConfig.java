@@ -13,10 +13,7 @@ public class BasicConfig {
     private String host;
     private int port;
 
-    /**
-     * 服务提供方还是服务消毒方
-     */
-    private ServiceType type;
+    private ServiceType serviceType;
 
     private String interfaceName;
 
@@ -87,11 +84,11 @@ public class BasicConfig {
         this.version = version;
     }
 
-    public ServiceType getType() {
-        return type;
+    public ServiceType getServiceType() {
+        return serviceType;
     }
 
-    public void setType(ServiceType type) {
-        this.type = type;
+    public void setServiceType(ServiceType serviceType) {
+        this.serviceType = serviceType;
     }
 }

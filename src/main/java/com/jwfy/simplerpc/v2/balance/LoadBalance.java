@@ -1,10 +1,12 @@
 package com.jwfy.simplerpc.v2.balance;
 
+import io.netty.channel.Channel;
+
 import java.util.List;
 
 /**
  * @author jwfy
  */
 public interface LoadBalance {
-    String balance(List<String> addressList);
+    Channel balance(List<Channel> channelList);
 }
