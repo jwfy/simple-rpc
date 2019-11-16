@@ -14,6 +14,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.codec.LengthFieldPrepender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +56,8 @@ public class ServiceConnection {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             socketChannel.pipeline()
-                                    .addLast(new LengthFieldBasedFrameDecoder(1024, 0, 2, 0, 2))
+                                    .addLast(new LengthFieldBasedFrameDecoder(65530, 0, 2, 0, 2))
+                                    .addLast(new LengthFieldPrepender(2))
                                     .addLast(new RpcDecoder(RpcRequest.class, serializeProtocol))
                                     .addLast(new RpcEncoder(RpcResponse.class, serializeProtocol))
                                     .addLast(new ServiceHandler(rpcService.getRpcInvoke()));

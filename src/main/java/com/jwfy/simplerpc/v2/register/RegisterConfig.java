@@ -23,9 +23,9 @@ public class RegisterConfig {
     private ServiceType serviceType;
 
     /**
-     * zk节点session过期时间
+     * zk节点session过期时间，服务断开后5秒自动关闭
      */
-    private int sessionTimeOut = 50000;
+    private int sessionTimeOut = 5000;
 
     public String getZkNameSpace() {
         return zkNameSpace;

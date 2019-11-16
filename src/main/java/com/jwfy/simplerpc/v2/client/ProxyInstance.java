@@ -41,9 +41,7 @@ public class ProxyInstance implements InvocationHandler {
         if (channel == null) {
             throw new RuntimeException("无有效服务提供方");
         }
-        logger.info("invoke with channel:{}", channel);
-
-        long start1 = System.currentTimeMillis();
+        logger.debug("获取将使用的channel:{}", channel);
 
         RpcRequest request = new RpcRequest();
         request.setClassName(clazz.getName());
@@ -51,16 +49,11 @@ public class ProxyInstance implements InvocationHandler {
         request.setParameterTypes(method.getParameterTypes());
         request.setArguments(args);
 
-        logger.info("setRequest costtime:{}", (System.currentTimeMillis() - start1));
-
         RpcResponseFuture future = RequestManager.getInstance().send(channel, request);
-        long start = System.currentTimeMillis();
         RpcResponse response = future.getResponse();
-        logger.warn("getresponse costTime:{}", (System.currentTimeMillis() - start));
         if (response.getError()) {
             throw new RuntimeException(response.getErrorMessage());
         }
-
         return response.getResult();
     }
 }

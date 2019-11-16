@@ -48,6 +48,10 @@ public class RpcService {
     private RpcInvoke rpcInvoke;
 
     public RpcService(int port) {
+        // 优雅关闭注册，必须放在最前面
+        Runtime.getRuntime().addShutdownHook(new Thread(()-> {
+            RpcService.this.close();
+        }));
         this.port = port;
         this.serviceConfigMap = new HashMap<>(64);
         this.serviceRegister = new ZkServiceRegister(new RegisterConfig());
@@ -73,11 +77,6 @@ public class RpcService {
         }
         // 服务连接&注册
         this.serviceConnection.start(serviceConfigList);
-
-        // 优雅关闭
-        Runtime.getRuntime().addShutdownHook(new Thread(()-> {
-            RpcService.this.close();
-        }));
     }
 
     public int getPort() {

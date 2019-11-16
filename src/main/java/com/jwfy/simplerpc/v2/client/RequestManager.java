@@ -29,10 +29,9 @@ public class RequestManager {
     }
 
     public static final RequestManager getInstance() {
+        // 单例，使用嵌套类，既能保证线程安全，也不影响性能
         return Single.INSTANCE;
     }
-
-    // private Map<String, RpcResponseFuture> responseMap = new ConcurrentHashMap<>();
 
     /**
      * 客户端发送请求，先返回一个future
@@ -40,12 +39,12 @@ public class RequestManager {
      * @return
      */
     public RpcResponseFuture send(Channel channel, RpcRequest request) {
-        logger.info("请求开始发送:{}", request);
+        logger.debug("请求开始发送:{}", request);
         channel.writeAndFlush(request)
                 .addListener(new ChannelFutureListener() {
                     @Override
                     public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                        logger.info("请求发送成功:");
+                        logger.debug("请求发送成功:");
                     }
                 });
         RpcResponseFuture future = new RpcResponseFuture();

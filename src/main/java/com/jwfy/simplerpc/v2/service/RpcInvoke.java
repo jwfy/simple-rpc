@@ -1,8 +1,5 @@
 package com.jwfy.simplerpc.v2.service;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.jwfy.simplerpc.v2.config.ServiceConfig;
 import com.jwfy.simplerpc.v2.protocol.RpcRequest;
@@ -80,9 +77,8 @@ public class RpcInvoke {
         this.executor.execute(new Runnable() {
             @Override
             public void run() {
-//                RpcRequest request = convert(requestStr);
-
                 RpcResponse response = invoke(request);
+                // 默认是pipline 刷新数据，如果直接使用channel可能存在遗漏的可能性
                 context.writeAndFlush(response)
                         .addListener(new ChannelFutureListener() {
                             @Override
@@ -93,27 +89,6 @@ public class RpcInvoke {
             }
         });
 
-    }
-
-    private RpcRequest convert(String requestStr) {
-        RpcRequest request = new RpcRequest();
-
-        JSONObject jsonObject = JSON.parseObject(requestStr);
-        request.setRequestId(jsonObject.getString("requestId"));
-        request.setClassName(jsonObject.getString("className"));
-        request.setMethodName(jsonObject.getString("methodName"));
-
-        JSONArray arguments = jsonObject.getJSONArray("arguments");
-        Object[] argumentObj = new Object[arguments.size()];
-
-        for(int i=0; i< arguments.size(); i++) {
-            argumentObj[i] = arguments.get(i);
-        }
-        request.setArguments(argumentObj);
-        request.setParameterTypes(new Class[]{Object.class, Object.class});
-
-        // TODO: 2019-11-06 序列化存在问题
-        return request;
     }
 
 }

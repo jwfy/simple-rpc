@@ -27,15 +27,14 @@ public class RpcEncoder extends MessageToByteEncoder {
     protected void encode(ChannelHandlerContext channelHandlerContext, Object o, ByteBuf byteBuf) throws Exception {
         long startTime = System.currentTimeMillis();
         byte[] bytes = serializeProtocol.serialize(o);
-
-        // logger.debug("encde bytes with len:{}, data:{}", bytes.length, bytes);
+        logger.warn("encde bytes with len:{}\ndata:[{}]", bytes.length, bytes);
 //        byteBuf.writeInt(bytes.length);
 
 //        byte[] cur = new byte[2];
 //        cur[0] = (byte) (bytes.length & 0xff);   // -1
 //        cur[1] = (byte) (bytes.length >>> 8 & 0xff);  // 0
 
-        byteBuf.writeShort(bytes.length);
+        // byteBuf.writeShort(bytes.length);
         byteBuf.writeBytes(bytes);
 
         logger.debug("序列化 length:{}, 耗时:{}, {}", bytes.length, System.currentTimeMillis() - startTime, o);

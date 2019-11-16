@@ -3,6 +3,7 @@ package com.jwfy.simplerpc.v2.demo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -28,5 +29,10 @@ public class SimpleCalculate implements Calculate<Integer> {
     @Override
     public Integer sub(Integer a, Integer b) {
         return a - b;
+    }
+
+    @Override
+    public Integer bigTest(List<String> list) {
+        return 0;
     }
 }

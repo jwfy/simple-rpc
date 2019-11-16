@@ -40,6 +40,10 @@ public class RpcClient {
     private ClientHandler clientHandler = new ClientHandler();
 
     public RpcClient() {
+        // 优雅关闭注册，必须放在最前面
+        Runtime.getRuntime().addShutdownHook(new Thread(()-> {
+            RpcClient.this.close();
+        }));
         this.registerConfig = new RegisterConfig();
         this.serviceDiscovery = new ZkServiceDiscovery(this);
         this.clientConnection = new ClientConnection(this);
@@ -52,20 +56,11 @@ public class RpcClient {
         clientConfigMap.put(interfaceName, clientConfig);
     }
 
-    private void discovery() {
+    public void start() {
         // 服务注册，在网络监听启动之前就需要完成
         for(String interfaceName : clientConfigMap.keySet()) {
             this.serviceDiscovery.discovery(interfaceName);
         }
-    }
-
-    public void start() {
-        this.discovery();
-
-        // 优雅关闭
-        Runtime.getRuntime().addShutdownHook(new Thread(()-> {
-            RpcClient.this.close();
-        }));
     }
 
     public ClientConnection getClientConnection() {
