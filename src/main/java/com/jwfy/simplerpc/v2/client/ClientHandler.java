@@ -63,7 +63,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse>  {
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcResponse response) throws Exception {
         RequestManager.getInstance().setResponse(response);
-        logger.info("收到结果 :{}", response);
+        logger.debug("收到结果 :{}", response);
     }
 
     public void addChannel(Channel channel, String interfaceName, String ip) {
@@ -110,7 +110,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse>  {
                 channelList.add(channel);
             }
         }
-        logger.warn("getChannels costTime:{},  channels:{}", (System.currentTimeMillis() - start), channelList);
+        logger.debug("getChannels costTime:{},  channels:{}", (System.currentTimeMillis() - start), channelList);
         return channelList;
     }
 }

@@ -55,6 +55,6 @@ public class RequestManager {
     public void setResponse(RpcResponse response) throws InterruptedException {
         RpcResponseFuture future = responseMap.remove(response.getRequestId());
         future.setResponse(response);
-        logger.info("收到结果 :{}", response);
+        logger.debug("收到结果 :{}", response);
     }
 }

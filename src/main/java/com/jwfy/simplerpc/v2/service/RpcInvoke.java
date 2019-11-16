@@ -83,7 +83,7 @@ public class RpcInvoke {
                         .addListener(new ChannelFutureListener() {
                             @Override
                             public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                                logger.info("返回响应结果, response:" + response);
+                                logger.debug("返回响应结果, response:" + response);
                             }
                         });
             }

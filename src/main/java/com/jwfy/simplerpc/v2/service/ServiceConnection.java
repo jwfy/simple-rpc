@@ -58,8 +58,8 @@ public class ServiceConnection {
                             socketChannel.pipeline()
                                     .addLast(new LengthFieldBasedFrameDecoder(65530, 0, 2, 0, 2))
                                     .addLast(new LengthFieldPrepender(2))
-                                    .addLast(new RpcDecoder(RpcRequest.class, serializeProtocol))
-                                    .addLast(new RpcEncoder(RpcResponse.class, serializeProtocol))
+                                    .addLast(new RpcDecoder<>(RpcRequest.class, serializeProtocol))
+                                    .addLast(new RpcEncoder<>(RpcResponse.class, serializeProtocol))
                                     .addLast(new ServiceHandler(rpcService.getRpcInvoke()));
                         }
                     });

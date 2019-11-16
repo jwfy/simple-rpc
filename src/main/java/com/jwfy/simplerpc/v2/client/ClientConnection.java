@@ -63,8 +63,8 @@ public class ClientConnection  {
                         socketChannel.pipeline()
                                 .addLast(new LengthFieldBasedFrameDecoder(65530, 0, 2, 0, 2))
                                 .addLast(new LengthFieldPrepender(2))
-                                .addLast(new RpcEncoder(RpcRequest.class, serializeProtocol))
-                                .addLast(new RpcDecoder(RpcResponse.class, serializeProtocol))
+                                .addLast(new RpcEncoder<>(RpcRequest.class, serializeProtocol))
+                                .addLast(new RpcDecoder<>(RpcResponse.class, serializeProtocol))
                                 .addLast(clientHandler);
                     }
                 });

@@ -12,15 +12,15 @@ import java.util.List;
 /**
  * @author jwfy
  */
-public class RpcDecoder extends ByteToMessageDecoder {
+public class RpcDecoder<T> extends ByteToMessageDecoder {
 
     private static final Logger logger = LoggerFactory.getLogger(RpcEncoder.class);
 
-    private Class<?> clazz;
+    private Class<T> clazz;
 
     private SerializeProtocol serializeProtocol;
 
-    public RpcDecoder(Class<?> clazz, SerializeProtocol serializeProtocol) {
+    public RpcDecoder(Class<T> clazz, SerializeProtocol serializeProtocol) {
         this.clazz = clazz;
         this.serializeProtocol = serializeProtocol;
     }
@@ -32,7 +32,7 @@ public class RpcDecoder extends ByteToMessageDecoder {
         byte[] data = new byte[byteBuf.readableBytes()];
         byteBuf.readBytes(data);
         // logger.debug("反序列化 字节数据 with len:{}, data:{}", data.length, data);
-        Object obj = this.serializeProtocol.deserialize(clazz, data);
+        T obj = this.serializeProtocol.deserialize(clazz, data);
         list.add(obj);
         logger.debug("反序列化 length:{}, 耗时:{}", data.length, System.currentTimeMillis() - startTime);
     }

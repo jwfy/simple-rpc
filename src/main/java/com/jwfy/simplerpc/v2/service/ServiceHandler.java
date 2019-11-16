@@ -44,7 +44,7 @@ public class ServiceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         RpcRequest request = (RpcRequest) msg;
-        logger.info("收到请求:" + request);
+        logger.debug("收到请求:{}", request);
         this.rpcInvoke.invoke(ctx, request);
     }
 
