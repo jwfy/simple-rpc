@@ -11,6 +11,7 @@ import java.util.List;
 public class BasicConfig {
 
     private String host;
+
     private int port;
 
     private ServiceType serviceType;

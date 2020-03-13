@@ -38,7 +38,7 @@ public class RequestManager {
      * @param request
      * @return
      */
-    public RpcResponseFuture send(Channel channel, RpcRequest request) {
+    public RpcResponseFuture send(Channel channel, RpcRequest request, boolean hasResult) {
         logger.debug("请求开始发送:{}", request);
         channel.writeAndFlush(request)
                 .addListener(new ChannelFutureListener() {
@@ -47,7 +47,7 @@ public class RequestManager {
                         logger.debug("请求发送成功:");
                     }
                 });
-        RpcResponseFuture future = new RpcResponseFuture();
+        RpcResponseFuture future = new RpcResponseFuture(hasResult);
         responseMap.put(request.getRequestId(), future);
         return future;
     }

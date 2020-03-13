@@ -9,15 +9,25 @@ import com.jwfy.simplerpc.v2.util.CommonUtils;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.pool.AbstractChannelPoolMap;
+import io.netty.channel.pool.ChannelPoolHandler;
+import io.netty.channel.pool.ChannelPoolMap;
+import io.netty.channel.pool.FixedChannelPool;
+import io.netty.channel.pool.SimpleChannelPool;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
+import io.netty.util.concurrent.Future;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.CountDownLatch;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 在链接操作中，需要持有和管理clienthandler
@@ -28,78 +38,95 @@ public class ClientConnection  {
 
     private static final Logger logger = LoggerFactory.getLogger(ClientConnection.class);
 
+    private ChannelPoolMap<InetSocketAddress, SimpleChannelPool> channelPool;
+
     private RpcClient rpcClient;
 
-    private ClientHandler clientHandler;
+    private ReentrantLock lock;
+
+    private Set<InetSocketAddress> addressSet;
+
+    private ThreadLocal<SimpleChannelPool> poolThreadLocal = new ThreadLocal<>();
 
     public ClientConnection(RpcClient rpcClient) {
         this.rpcClient = rpcClient;
-        this.clientHandler = rpcClient.getClientHandler();
-    }
-
-    /**
-     *
-     * @param interfaceName
-     * @param ip
-     * @param sync  为true就是阻塞处理，否则就是异步处理
-     */
-    public void connection(String interfaceName, String ip, boolean sync) {
-        Channel channel = clientHandler.getChannel(ip);
-        if (channel != null) {
-            logger.warn("已经连接好了, IP:{}, interface:{}, channel:{}", ip, interfaceName, channel);
-            return;
-        }
-        InetSocketAddress address = CommonUtils.parseIp(ip);
-
-        SerializeProtocol serializeProtocol = rpcClient.getSerializeProtocol();
+        this.lock = new ReentrantLock();
+        this.addressSet = new HashSet<>();
 
         EventLoopGroup work = new NioEventLoopGroup(8);
         Bootstrap bootstrap = new Bootstrap();
-        bootstrap.group(work).channel(NioSocketChannel.class)
-                .handler(new ChannelInitializer<SocketChannel>() {
+        bootstrap.group(work)
+                .channel(NioSocketChannel.class)
+                .option(ChannelOption.TCP_NODELAY, true)
+                .option(ChannelOption.SO_KEEPALIVE, true);
 
-                    @Override
-                    protected void initChannel(SocketChannel socketChannel) throws Exception {
-                        socketChannel.pipeline()
-                                .addLast(new LengthFieldBasedFrameDecoder(65530, 0, 2, 0, 2))
-                                .addLast(new LengthFieldPrepender(2))
-                                .addLast(new RpcEncoder<>(RpcRequest.class, serializeProtocol))
-                                .addLast(new RpcDecoder<>(RpcResponse.class, serializeProtocol))
-                                .addLast(clientHandler);
-                    }
-                });
-
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-
-        ChannelFuture channelFuture = bootstrap.connect(address);
-        channelFuture.addListener(new ChannelFutureListener() {
+        channelPool = new AbstractChannelPoolMap<InetSocketAddress, SimpleChannelPool>() {
             @Override
-            public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                if (channelFuture.isSuccess()) {
-                    clientHandler.addChannel(channelFuture.channel(), interfaceName, ip);
-                    countDownLatch.countDown();
-                }
+            protected SimpleChannelPool newPool(InetSocketAddress key) {
+                return new FixedChannelPool(
+                        bootstrap.remoteAddress(key),
+                        new CustomChannelPoolHandler(),
+                        20);
             }
+        };
+    }
 
-        });
-        if (sync) {
-            try {
-                countDownLatch.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        } else {
-            countDownLatch.countDown();
-            try {
-                countDownLatch.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+    public Future<Channel> acquire(InetSocketAddress socketAddress) {
+        lock.lock();
+        try {
+            addressSet.add(socketAddress);
+        } finally {
+            lock.unlock();
+        }
+        SimpleChannelPool pool = channelPool.get(socketAddress);
+        logger.debug("acquire pool with {}", socketAddress);
+        poolThreadLocal.set(pool);
+        return pool.acquire();
+    }
+
+    public void release(Channel channel) {
+        logger.debug("release pool channel with {}", channel);
+        SimpleChannelPool pool = poolThreadLocal.get();
+        pool.release(channel);
+        poolThreadLocal.remove();
+    }
+
+    public void close() {
+        Iterator<InetSocketAddress> iterator = addressSet.iterator();
+        while (iterator.hasNext()) {
+            InetSocketAddress socketAddress = iterator.next();
+            SimpleChannelPool pool = channelPool.get(socketAddress);
+            pool.close();
         }
     }
 
-    public void remove(String interfaceName, String ip) {
-        this.clientHandler.removeChannel(interfaceName, ip);
+    class CustomChannelPoolHandler implements ChannelPoolHandler {
+
+        @Override
+        public void channelReleased(Channel ch) throws Exception {
+            logger.debug("channelReleased channel:{}", ch);
+        }
+
+        @Override
+        public void channelAcquired(Channel ch) throws Exception {
+            logger.debug("channelAcquired channel:{}", ch);
+        }
+
+        @Override
+        public void channelCreated(Channel ch) throws Exception {
+            logger.info("channelCreated channel:{}", ch);
+
+            SerializeProtocol serializeProtocol = rpcClient.getSerializeProtocol();
+            SocketChannel channel = (SocketChannel) ch;
+            channel.config().setKeepAlive(true);
+            channel.config().setTcpNoDelay(true);
+            channel.pipeline()
+                    .addLast(new LengthFieldBasedFrameDecoder(2048, 0, 2, 0, 2))
+                    .addLast(new LengthFieldPrepender(2))
+                    .addLast(new RpcEncoder<>(RpcRequest.class, serializeProtocol))
+                    .addLast(new RpcDecoder<>(RpcResponse.class, serializeProtocol))
+                    .addLast(new ClientHandler());
+        }
     }
 
 }

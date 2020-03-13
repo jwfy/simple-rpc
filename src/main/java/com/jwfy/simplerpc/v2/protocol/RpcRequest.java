@@ -23,7 +23,7 @@ public class RpcRequest implements Serializable {
 
     private Object[] arguments;
 
-    private  Class<?>[] parameterTypes;
+    private Class<?>[] parameterTypes;
 
     public RpcRequest() {
         this.requestId = UUID.randomUUID().toString();

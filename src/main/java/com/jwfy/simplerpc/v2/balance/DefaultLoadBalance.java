@@ -2,6 +2,7 @@ package com.jwfy.simplerpc.v2.balance;
 
 import io.netty.channel.Channel;
 
+import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Random;
 
@@ -11,8 +12,8 @@ import java.util.Random;
 public class DefaultLoadBalance extends AbstractLoadBalance {
 
     @Override
-    public Channel doLoad(List<Channel> channelList) {
+    public String doLoad(List<String> socketAddressList) {
         Random random = new Random();
-        return channelList.get(random.nextInt(channelList.size()));
+        return socketAddressList.get(random.nextInt(socketAddressList.size()));
     }
 }

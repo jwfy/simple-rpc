@@ -21,19 +21,33 @@ public class Client {
 
         Calculate<Integer> calculateProxy = rpcClient.getInstance(Calculate.class);
 
-        for(int i=1; i<=1; i++) {
-            new Thread(() -> {
-                test(calculateProxy);
-            }).start();
+        for(int i=1; i<=10; i++) {
+            test(calculateProxy);
+            //new Thread(() -> {
+            //    test(calculateProxy);
+            //}).start();
         }
     }
 
     private static void test(Calculate<Integer> calculateProxy) {
-        int s1 = new Random().nextInt(100);
-        int s2 = new Random().nextInt(100);
-        long start = System.currentTimeMillis();
-        int s3 = calculateProxy.add(s1, s2);
-        logger.info("[" + Thread.currentThread().getName() + "]a: " + s1 + ", b:" + s2 + ", c=" + s3 + ", 耗时:" + (System.currentTimeMillis() - start));
+        try {
+            int s1 = new Random().nextInt(100);
+            int s2 = new Random().nextInt(100);
+            long start = System.currentTimeMillis();
+            int s3 = calculateProxy.add(s1, s2);
+            logger.info("["
+                    + Thread.currentThread().getName()
+                    + "]a: "
+                    + s1
+                    + ", b:"
+                    + s2
+                    + ", c="
+                    + s3
+                    + ", 耗时:"
+                    + (System.currentTimeMillis() - start));
+        } catch (Exception e) {
+
+        }
     }
 
 }

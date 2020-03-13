@@ -2,7 +2,11 @@ package com.jwfy.simplerpc.v2.balance;
 
 import io.netty.channel.Channel;
 
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author jwfy
@@ -10,15 +14,16 @@ import java.util.List;
 public abstract class AbstractLoadBalance implements LoadBalance {
 
     @Override
-    public Channel balance(List<Channel> channelList) {
-        if (channelList == null || channelList.isEmpty()) {
+    public String balance(Set<String> socketAddressList) {
+        if (socketAddressList == null || socketAddressList.isEmpty()) {
             return null;
         }
-        if (channelList.size() == 1) {
-            return channelList.get(0);
+        List<String> list = new ArrayList<>(socketAddressList);
+        if (socketAddressList.size() == 1) {
+            return list.get(0);
         }
-        return doLoad(channelList);
+        return doLoad(list);
     }
 
-    abstract Channel doLoad(List<Channel> addressList);
+    abstract String doLoad(List<String> socketAddressList);
 }

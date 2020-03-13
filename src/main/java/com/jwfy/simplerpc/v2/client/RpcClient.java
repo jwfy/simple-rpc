@@ -10,8 +10,15 @@ import com.jwfy.simplerpc.v2.serialize.SerializeProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import io.netty.channel.Channel;
+import io.netty.util.concurrent.Future;
 
 /**
  * @author jwfy
@@ -35,9 +42,9 @@ public class RpcClient {
     private SerializeProtocol serializeProtocol = new HessianSerialize();
 
     /**
-     * netty handler处理器
+     * 在zk中存储着服务端暴露出来的接口的ip地址等信息
      */
-    private ClientHandler clientHandler = new ClientHandler();
+    private Map<String, Set<String>> socketAddressMap = new HashMap<>();
 
     public RpcClient() {
         // 优雅关闭注册，必须放在最前面
@@ -57,14 +64,12 @@ public class RpcClient {
     }
 
     public void start() {
-        // 服务注册，在网络监听启动之前就需要完成
+        // 服务注册，仅完成了从zk获取对应的ip地址信息以及相关的监听工作
         for(String interfaceName : clientConfigMap.keySet()) {
-            this.serviceDiscovery.discovery(interfaceName);
+            Set<String> inetSocketAddresses = new HashSet<>();
+            socketAddressMap.put(interfaceName, inetSocketAddresses);
+            this.serviceDiscovery.discovery(interfaceName, inetSocketAddresses);
         }
-    }
-
-    public ClientConnection getClientConnection() {
-        return clientConnection;
     }
 
     public RegisterConfig getRegisterConfig() {
@@ -75,18 +80,30 @@ public class RpcClient {
         return serializeProtocol;
     }
 
-    public ClientHandler getClientHandler() {
-        return clientHandler;
-    }
-
     public <T> T getInstance(Class<T> clazz) {
         return (T) (clientConfigMap.get(clazz.getName()).getProxy());
     }
 
+    public Set<String> getSocketAddress(String interfaceName) {
+        return this.socketAddressMap.get(interfaceName);
+    }
+
+    /**
+     * 默认最多花1s时间获取到有效的channel
+     * @param socketAddress
+     * @return
+     */
+    public Future<Channel> acquireChannel(InetSocketAddress socketAddress) {
+        return this.clientConnection.acquire(socketAddress);
+    }
+
+    public void releaseChannel(Channel channel) {
+        this.clientConnection.release(channel);
+    }
+
     public void close() {
         this.clientConfigMap.clear();
-//        this.clientConnection.close();
-        // this.serviceDiscovery.
+        this.clientConnection.close();
         logger.error("客户端关闭了");
     }
 
