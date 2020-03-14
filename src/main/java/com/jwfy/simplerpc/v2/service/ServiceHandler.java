@@ -23,22 +23,22 @@ public class ServiceHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        logger.warn("收到连接请求:{}", ctx.channel());
+        logger.debug("收到连接请求:{}", ctx.channel());
     }
 
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
-        logger.info("取消注册 channel:{}", ctx.channel());
+        logger.debug("取消注册 channel:{}", ctx.channel());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        logger.warn("链接断开请求:{}", ctx.channel());
+        logger.debug("链接断开请求:{}", ctx.channel());
     }
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-        logger.warn("收到注册请求:{}", ctx.channel());
+        logger.debug("收到注册请求:{}", ctx.channel());
     }
 
     @Override

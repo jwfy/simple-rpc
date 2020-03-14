@@ -29,7 +29,7 @@ public class RpcEncoder<T> extends MessageToByteEncoder<T> {
         logger.debug("接收到将序列化操作的数据");
         long startTime = System.currentTimeMillis();
         byte[] bytes = serializeProtocol.serialize(mgs);
-        //logger.warn("encode bytes with len:{}\ndata:[{}]", bytes.length, bytes);
+        logger.debug("encode bytes with len:{}\ndata:[{}]", bytes.length, bytes);
         byteBuf.writeBytes(bytes);
         logger.debug("序列化 length:{}, 耗时:{}, {}", bytes.length, System.currentTimeMillis() - startTime, mgs);
     }

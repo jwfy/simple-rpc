@@ -25,7 +25,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse>  {
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-        logger.info("注册成功 channel:{}", ctx.channel());
+        logger.debug("注册成功 channel:{}", ctx.channel());
     }
 
     @Override

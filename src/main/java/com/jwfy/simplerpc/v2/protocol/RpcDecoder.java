@@ -31,7 +31,7 @@ public class RpcDecoder<T> extends ByteToMessageDecoder {
         long startTime = System.currentTimeMillis();
         byte[] data = new byte[byteBuf.readableBytes()];
         byteBuf.readBytes(data);
-        // logger.debug("反序列化 字节数据 with len:{}, data:{}", data.length, data);
+        logger.debug("反序列化 字节数据 with len:{}, data:{}", data.length, data);
         T obj = this.serializeProtocol.deserialize(clazz, data);
         list.add(obj);
         logger.debug("反序列化 length:{}, 耗时:{}", data.length, System.currentTimeMillis() - startTime);

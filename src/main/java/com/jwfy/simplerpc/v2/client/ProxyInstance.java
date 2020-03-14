@@ -28,27 +28,24 @@ public class ProxyInstance implements InvocationHandler {
 
     private RpcClient rpcClient;
 
-    private LoadBalance loadBalance;
-
     private Class clazz;
 
     public ProxyInstance(RpcClient client, Class clazz) {
         this.rpcClient = client;
         this.clazz = clazz;
-        this.loadBalance = new DefaultLoadBalance();
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Set<String> socketAddressList = this.rpcClient.getSocketAddress(clazz.getName());
-        String socketAddressStr = loadBalance.balance(socketAddressList);
+        String socketAddressStr = this.rpcClient.loadBalance(socketAddressList);
         InetSocketAddress socketAddress = CommonUtils.parseIp(socketAddressStr);
         if (socketAddress == null) {
             throw new RuntimeException("无有效服务提供方");
         }
 
         RpcRequest request = new RpcRequest();
-        request.setClassName(clazz.getName());
+        request.setClassName(this.clazz.getName());
         request.setMethodName(method.getName());
         request.setParameterTypes(method.getParameterTypes());
         request.setArguments(args);

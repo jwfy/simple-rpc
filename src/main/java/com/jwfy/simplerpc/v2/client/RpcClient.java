@@ -1,6 +1,8 @@
 package com.jwfy.simplerpc.v2.client;
 
 
+import com.jwfy.simplerpc.v2.balance.DefaultLoadBalance;
+import com.jwfy.simplerpc.v2.balance.LoadBalance;
 import com.jwfy.simplerpc.v2.config.ClientConfig;
 import com.jwfy.simplerpc.v2.register.RegisterConfig;
 import com.jwfy.simplerpc.v2.register.ServiceDiscovery;
@@ -13,9 +15,9 @@ import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Future;
@@ -39,12 +41,14 @@ public class RpcClient {
 
     private RegisterConfig registerConfig;
 
-    private SerializeProtocol serializeProtocol = new HessianSerialize();
+    private SerializeProtocol serializeProtocol;
+
+    private LoadBalance loadBalance;
 
     /**
      * 在zk中存储着服务端暴露出来的接口的ip地址等信息
      */
-    private Map<String, Set<String>> socketAddressMap = new HashMap<>();
+    private Map<String, Set<String>> socketAddressMap = new ConcurrentHashMap<>();
 
     public RpcClient() {
         // 优雅关闭注册，必须放在最前面
@@ -54,6 +58,8 @@ public class RpcClient {
         this.registerConfig = new RegisterConfig();
         this.serviceDiscovery = new ZkServiceDiscovery(this);
         this.clientConnection = new ClientConnection(this);
+        this.loadBalance = new DefaultLoadBalance();
+        this.serializeProtocol = new HessianSerialize();
     }
 
     public <T> void subscribe(Class<T> clazz) {
@@ -86,6 +92,25 @@ public class RpcClient {
 
     public Set<String> getSocketAddress(String interfaceName) {
         return this.socketAddressMap.get(interfaceName);
+    }
+
+    public String loadBalance(Set<String> socketAddressList) {
+        if (this.loadBalance == null) {
+            this.loadBalance = new DefaultLoadBalance();
+        }
+        return this.loadBalance.balance(socketAddressList);
+    }
+
+    /**
+     * 可添加自定义的负载均衡器
+     * @param loadBalance
+     */
+    public void setLoadBalance(LoadBalance loadBalance) {
+        this.loadBalance = loadBalance;
+    }
+
+    public void setSerializeProtocol(SerializeProtocol serializeProtocol) {
+        this.serializeProtocol = serializeProtocol;
     }
 
     /**
