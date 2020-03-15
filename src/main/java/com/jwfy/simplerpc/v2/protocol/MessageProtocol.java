@@ -9,6 +9,8 @@ import java.io.OutputStream;
  *
  * @author jwfy
  */
+
+@Deprecated
 public interface MessageProtocol {
 
     /**

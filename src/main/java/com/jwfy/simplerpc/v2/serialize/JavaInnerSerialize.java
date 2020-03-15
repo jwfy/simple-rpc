@@ -3,7 +3,7 @@ package com.jwfy.simplerpc.v2.serialize;
 import java.io.*;
 
 /**
- * 利用hessian 序列化工具
+ * Java默认 序列化工具
  *
  * @author jwfy
  */

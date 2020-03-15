@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author jwfy
  */
+
+@Deprecated
 public class DefaultMessageProtocol implements MessageProtocol {
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultMessageProtocol.class);
