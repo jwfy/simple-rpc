@@ -62,7 +62,6 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
             if (ipList != null && !ipList.isEmpty()) {
                 ipList.forEach(ip -> {
                     socketAddressList.add(ip);
-                    //rpcClient.getClientConnection().connection(interfaceName, ip, true);
                 });
             }
             addWatcher(zkPath, socketAddressList);
@@ -81,17 +80,15 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
                     String[] childPath = event.getData().getPath().split("/");
                     String ip = childPath[childPath.length-1];
                     PathChildrenCacheEvent.Type type = event.getType();
-                    logger.info("path:[{}]，ip:[{}], type:{}", zkPath, ip, type.toString());
+                    logger.debug("path:[{}]，ip:[{}], type:{}", zkPath, ip, type.toString());
                     if (CHILD_ADDED == type) {
                         // 监听到节点添加
-                        logger.warn("node add :{}", event);
+                        logger.info("node add :{}", event);
                         socketAddressList.add(ip);
-                        //rpcClient.getClientConnection().connection(interfaceName, ip, false);
                     } else if (CHILD_REMOVED == type) {
                         // 监听到节点移除
-                        logger.warn("node remove :{}", event);
+                        logger.info("node remove :{}", event);
                         socketAddressList.remove(ip);
-                        //rpcClient.getClientConnection().remove(interfaceName, ip);
                     }
                 }
             }

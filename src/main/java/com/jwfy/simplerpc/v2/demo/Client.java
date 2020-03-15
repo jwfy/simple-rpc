@@ -21,8 +21,15 @@ public class Client {
 
         Calculate<Integer> calculateProxy = rpcClient.getInstance(Calculate.class);
 
-        for(int i=1; i<=10; i++) {
+        for(int i=1; i<=1000; i++) {
             test(calculateProxy);
+            if (i==500) {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
             //new Thread(() -> {
             //    test(calculateProxy);
             //}).start();

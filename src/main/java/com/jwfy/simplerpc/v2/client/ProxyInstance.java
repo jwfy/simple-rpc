@@ -50,7 +50,7 @@ public class ProxyInstance implements InvocationHandler {
         request.setParameterTypes(method.getParameterTypes());
         request.setArguments(args);
 
-        boolean hasResult = !method.getReturnType().isInstance(Void.class);
+        boolean hasResult = !method.getReturnType().equals(Void.TYPE);
         RpcResponse response = null;
 
         // 没有另外加filter或者配置重试次数，但是应该把超时时间加上
