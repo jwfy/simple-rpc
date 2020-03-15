@@ -6,6 +6,9 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author jwfy
@@ -19,6 +22,8 @@ public class IOService implements Runnable{
     private RpcExploreService rpcExploreService;
 
     private volatile boolean flag;
+
+    private ThreadPoolExecutor executor;
 
     public IOService(RpcExploreService rpcExploreService, int port) throws IOException {
         this.rpcExploreService = rpcExploreService;
@@ -35,6 +40,8 @@ public class IOService implements Runnable{
                 System.out.println("服务端关闭了");
             }
         });
+
+        this.executor =new ThreadPoolExecutor(2, 2, 0, TimeUnit.SECONDS, new ArrayBlockingQueue<>(5), new ThreadPoolExecutor.AbortPolicy());
     }
 
     @Override
@@ -49,7 +56,9 @@ public class IOService implements Runnable{
             if (socket == null) {
                 continue;
             }
-            new Thread(new ServerSocketRunnable(socket)).start();
+
+            this.executor.execute(new ServerSocketRunnable(socket));
+            //new Thread(new ServerSocketRunnable(socket)).start();
         }
     }
 

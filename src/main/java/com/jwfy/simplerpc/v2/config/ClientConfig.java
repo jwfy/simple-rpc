@@ -1,8 +1,7 @@
 package com.jwfy.simplerpc.v2.config;
 
 
-import com.jwfy.simplerpc.v2.core.ProxyInstance;
-import com.jwfy.simplerpc.v2.domain.ServiceType;
+import com.jwfy.simplerpc.v2.client.ProxyInstance;
 
 import java.io.Serializable;
 import java.lang.reflect.Proxy;
@@ -30,7 +29,6 @@ public class ClientConfig<T> extends BasicConfig implements Serializable {
         config.setInterfaceClass(interfaceClass);
         config.setInterfaceName(interfaceClass.getName());
         config.setMethods(MethodConfig.convert(interfaceClass.getMethods()));
-        config.setType(ServiceType.CONSUMER);
 
         Object proxy = Proxy.newProxyInstance(ClientConfig.class.getClassLoader(),
                 new Class<?>[]{interfaceClass},

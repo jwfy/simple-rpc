@@ -1,11 +1,9 @@
 package com.jwfy.simplerpc.v2.register;
 
 
-import com.jwfy.simplerpc.v2.config.BasicConfig;
-import com.jwfy.simplerpc.v2.core.RpcRequest;
-import com.jwfy.simplerpc.v2.domain.ServiceType;
+import com.jwfy.simplerpc.v2.config.ServiceConfig;
 
-import java.net.InetSocketAddress;
+import java.util.List;
 
 /**
  * @author jwfy
@@ -13,15 +11,19 @@ import java.net.InetSocketAddress;
 public interface ServiceRegister {
 
     /**
+     * 批量服务注册
+     * @param configList
+     */
+    void registerList(List<ServiceConfig> configList);
+
+    /**
      * 服务注册
      * @param config
      */
-    void register(BasicConfig config);
+    void register(ServiceConfig config);
 
     /**
-     * 服务发现，从注册中心获取可用的服务提供方配置信息
-     * @param request
-     * @return
+     * 优雅关闭
      */
-    InetSocketAddress discovery(RpcRequest request, ServiceType nodeType);
+    void close();
 }

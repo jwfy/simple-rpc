@@ -10,7 +10,7 @@ import java.io.*;
 public class JavaInnerSerialize implements SerializeProtocol {
 
     @Override
-    public <T> byte[] serialize(Class<T> clazz, T t) {
+    public <T> byte[] serialize(T t) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ObjectOutputStream objectOutputStream = null;
         try {

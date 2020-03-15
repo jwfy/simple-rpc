@@ -15,7 +15,7 @@ import java.io.IOException;
 public class HessianSerialize implements SerializeProtocol {
 
     @Override
-    public <T> byte[] serialize(Class<T> clazz, T t) {
+    public <T> byte[] serialize(T t) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Hessian2Output hessian2Output = new Hessian2Output(outputStream);
         try {

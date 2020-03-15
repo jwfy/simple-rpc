@@ -1,8 +1,9 @@
-package com.jwfy.simplerpc.v2.core;
+package com.jwfy.simplerpc.v2.protocol;
 
 import com.alibaba.fastjson.JSON;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 /**
  * @author jwfy
@@ -11,13 +12,30 @@ public class RpcRequest implements Serializable {
 
     private static final long serialVersionUID = -8432924711920321749L;
 
+    /**
+     * 以ip + 时间戳组成的唯一请求id
+     */
+    private String requestId;
+
     private String className;
 
     private String methodName;
 
     private Object[] arguments;
 
-    private  Class<?>[] parameterTypes;
+    private Class<?>[] parameterTypes;
+
+    public RpcRequest() {
+        this.requestId = UUID.randomUUID().toString();
+    }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
 
     public String getClassName() {
         return className;

@@ -1,9 +1,6 @@
 package com.jwfy.simplerpc.v2.protocol;
 
 
-import com.jwfy.simplerpc.v2.core.RpcRequest;
-import com.jwfy.simplerpc.v2.core.RpcResponse;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 

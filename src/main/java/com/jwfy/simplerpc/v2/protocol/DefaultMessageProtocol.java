@@ -1,9 +1,7 @@
 package com.jwfy.simplerpc.v2.protocol;
 
 
-import com.jwfy.simplerpc.v2.core.RpcRequest;
-import com.jwfy.simplerpc.v2.core.RpcResponse;
-import com.jwfy.simplerpc.v2.serialize.JavaInnerSerialize;
+import com.jwfy.simplerpc.v2.serialize.HessianSerialize;
 import com.jwfy.simplerpc.v2.serialize.SerializeProtocol;
 
 import java.io.ByteArrayOutputStream;
@@ -12,6 +10,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 套接字的io流和服务端、客户端的数据传输
  *
@@ -19,11 +20,13 @@ import java.util.Arrays;
  */
 public class DefaultMessageProtocol implements MessageProtocol {
 
+    private static final Logger logger = LoggerFactory.getLogger(DefaultMessageProtocol.class);
+
     private SerializeProtocol serializeProtocol;
 
     public DefaultMessageProtocol() {
-        // this.serializeProtocol = new HessianSerialize();
-        this.serializeProtocol = new JavaInnerSerialize();
+        // 默认为hessian序列号协议
+        this.serializeProtocol = new HessianSerialize();
     }
 
     public void setSerializeProtocol(SerializeProtocol serializeProtocol) {
@@ -36,8 +39,7 @@ public class DefaultMessageProtocol implements MessageProtocol {
         try {
             // 2、bytes -> request 反序列化
             byte[] bytes = readBytes(inputStream);
-            // System.out.println("[2]服务端反序列化出obj:[" + new String(bytes) + "], length:" + bytes.length);
-            System.out.println("[2]服务端反序列化出obj length:" + bytes.length);
+            logger.debug("[2]服务端反序列化出obj length:{}", bytes.length);
             RpcRequest request = serializeProtocol.deserialize(RpcRequest.class, bytes);
             return request;
         } catch (Exception e) {
@@ -50,9 +52,8 @@ public class DefaultMessageProtocol implements MessageProtocol {
     public <T> void serviceGetResponse(RpcResponse<T> response, OutputStream outputStream) {
         try {
             // 3、把response 序列化成bytes 传给客户端
-            byte[] bytes = serializeProtocol.serialize(RpcResponse.class, response);
-            // System.out.println("[3]服务端序列化出bytes:[" + new String(bytes) + "], length:" + bytes.length);
-            System.out.println("[3]服务端序列化出bytes length:" + bytes.length);
+            byte[] bytes = serializeProtocol.serialize(response);
+            logger.debug("[3]服务端序列化出bytes length:{}", bytes.length);
             outputStream.write(bytes);
         } catch (Exception e) {
             e.printStackTrace();
@@ -63,9 +64,8 @@ public class DefaultMessageProtocol implements MessageProtocol {
     public void clientToRequest(RpcRequest request, OutputStream outputStream) {
         try {
             // 1、先把这个request -> bytes 序列化掉
-            byte[] bytes = serializeProtocol.serialize(RpcRequest.class, request);
-            // System.out.println("[1]客户端序列化出bytes:[" + new String(bytes) + "], length:" + bytes.length);
-            System.out.println("[1]客户端序列化出bytes length:" + bytes.length);
+            byte[] bytes = serializeProtocol.serialize(request);
+            logger.debug("[1]客户端序列化出bytes length:{}", bytes.length);
             outputStream.write(bytes);
         } catch (IOException e) {
             e.printStackTrace();
@@ -77,11 +77,8 @@ public class DefaultMessageProtocol implements MessageProtocol {
         try {
             // 4、bytes 反序列化成response
             byte[] bytes = readBytes(inputStream);
-
-            // System.out.println("[4]客户端反序列化出bytes:[" + new String(bytes) + "], length:" + bytes.length);
-            System.out.println("[4]客户端反序列化出bytes length:" + bytes.length);
+            logger.debug("[4]客户端反序列化出bytes length:{}", bytes.length);
             RpcResponse response = serializeProtocol.deserialize(RpcResponse.class, bytes);
-
             return response;
         } catch (Exception e) {
             e.printStackTrace();
@@ -93,7 +90,7 @@ public class DefaultMessageProtocol implements MessageProtocol {
         if (inputStream == null) {
             throw new RuntimeException("input为空");
         }
-        return fun2(inputStream);
+        return fun1(inputStream);
     }
 
     private byte[] fun1(InputStream inputStream) throws IOException {
@@ -119,6 +116,7 @@ public class DefaultMessageProtocol implements MessageProtocol {
 
     /**
      * 有问题的fun3，调用之后会阻塞在read，可通过jstack查看相关信息
+     * 2019年07月18日18:53:29 问题已解决，添加socket.shutdownxxx即可
      * @param inputStream
      * @return
      * @throws IOException
@@ -129,7 +127,7 @@ public class DefaultMessageProtocol implements MessageProtocol {
 
         byte[] buff = new byte[bufesize];
         int rc = 0;
-        while ((rc = inputStream.read(buff, 0, bufesize)) > 0) {
+        while ((rc = inputStream.read(buff, 0, bufesize)) != -1) {
             byteArrayOutputStream.write(buff, 0, rc);
             buff = new byte[bufesize];
         }

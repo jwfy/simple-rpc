@@ -8,7 +8,7 @@ public interface SerializeProtocol {
     /**
      * 序列化
      */
-    <T> byte[] serialize(Class<T> clazz, T t);
+    <T> byte[] serialize(T t);
 
     /**
      * 反序列化
