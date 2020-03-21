@@ -7,5 +7,5 @@
 
 ### 使用说明
 
-可以查看v2/demo 文件夹中的Client以及ServiceX服务，分别对应着客户端和服务端
-在按照要求的zk配置启动zk后，就可以正常的调用执行了
+现在产出为`nio-client-start`和`nio-server-start`两个使用包
+完整嵌入到springboot中，推荐版本2.X
