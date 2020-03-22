@@ -95,7 +95,7 @@ public class RpcService {
         this.serviceConfigMap.clear();
         this.serviceRegister.close();
         this.serviceConnection.close();
-        logger.warn("服务端关闭了");
+        logger.info("服务端关闭了");
     }
 
 }

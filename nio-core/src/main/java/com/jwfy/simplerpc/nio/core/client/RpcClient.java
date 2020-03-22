@@ -152,7 +152,7 @@ public class RpcClient {
     public void close() {
         this.clientConfigMap.clear();
         this.clientConnection.close();
-        logger.error("客户端关闭了");
+        logger.info("客户端关闭了");
     }
 
 }

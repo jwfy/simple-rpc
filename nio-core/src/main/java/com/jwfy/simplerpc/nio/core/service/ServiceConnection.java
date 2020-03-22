@@ -86,6 +86,6 @@ public class ServiceConnection {
         if (work != null) {
             work.shutdownGracefully();
         }
-        logger.warn("Netty服务端关闭了");
+        logger.info("Netty服务端关闭了");
     }
 }

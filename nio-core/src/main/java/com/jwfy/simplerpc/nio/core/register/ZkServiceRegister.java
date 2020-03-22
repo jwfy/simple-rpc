@@ -79,7 +79,7 @@ public class ZkServiceRegister implements ServiceRegister {
     @Override
     public void close() {
         this.client.close();
-        logger.warn("zkClient关闭");
+        logger.info("zkClient关闭");
     }
 
     private String getServiceAddress(BasicConfig config) {
