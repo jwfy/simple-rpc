@@ -56,7 +56,7 @@ public class RpcInvoke {
         ServiceConfig<K> serviceConfig =  this.rpcService.getServiceConfig(className);
         // 暂时不考虑没有对应serviceconfig的情况
 
-        RpcResponse response = new RpcResponse();
+        RpcResponse<Object> response = new RpcResponse<>();
         response.setRequestId(request.getRequestId());
 
         K ref = serviceConfig.getRef();
@@ -74,7 +74,6 @@ public class RpcInvoke {
         } catch (Exception e) {
             logger.error("invoke error with:{}", e);
         }
-
         response.setError(true);
         return response;
     }

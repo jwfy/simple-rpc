@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import com.jwfy.simplerpc.nio.core.balance.DefaultLoadBalance;
 import com.jwfy.simplerpc.nio.core.balance.LoadBalance;
 import com.jwfy.simplerpc.nio.core.config.ClientConfig;
+import com.jwfy.simplerpc.nio.core.protocol.RpcRequest;
+import com.jwfy.simplerpc.nio.core.protocol.RpcResponse;
 import com.jwfy.simplerpc.nio.core.register.RegisterConfig;
 import com.jwfy.simplerpc.nio.core.register.ServiceDiscovery;
 import com.jwfy.simplerpc.nio.core.register.ZkServiceDiscovery;
@@ -19,6 +21,8 @@ import com.jwfy.simplerpc.nio.core.serialize.HessianSerialize;
 import com.jwfy.simplerpc.nio.core.serialize.SerializeProtocol;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.util.concurrent.Future;
 
 /**
@@ -48,6 +52,11 @@ public class RpcClient {
      * 在zk中存储着服务端暴露出来的接口的ip地址等信息
      */
     private Map<String, Set<String>> socketAddressMap = new ConcurrentHashMap<>();
+
+    /**
+     * 存储临时请求和记录
+     */
+    private Map<String, RpcResponseFuture> responseMap = new ConcurrentHashMap<>();
 
     public RpcClient() {
         this.registerConfig = new RegisterConfig();
@@ -143,6 +152,31 @@ public class RpcClient {
      */
     public Future<Channel> acquireChannel(InetSocketAddress socketAddress) {
         return this.clientConnection.acquire(socketAddress);
+    }
+
+    /**
+     * 客户端发送请求，先返回一个future
+     * @param request
+     * @return
+     */
+    public RpcResponseFuture send(Channel channel, RpcRequest request, boolean hasResult) {
+        logger.debug("请求开始发送:{}", request);
+        channel.writeAndFlush(request)
+                .addListener(new ChannelFutureListener() {
+                    @Override
+                    public void operationComplete(ChannelFuture channelFuture) throws Exception {
+                        logger.debug("请求发送成功:");
+                    }
+                });
+        RpcResponseFuture future = new RpcResponseFuture(hasResult);
+        responseMap.put(request.getRequestId(), future);
+        return future;
+    }
+
+    public void setResponse(RpcResponse<?> response) throws InterruptedException {
+        RpcResponseFuture future = responseMap.remove(response.getRequestId());
+        future.setResponse(response);
+        logger.debug("收到结果 :{}", response);
     }
 
     public void releaseChannel(Channel channel) {

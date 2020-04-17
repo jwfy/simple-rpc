@@ -127,7 +127,7 @@ public class ClientConnection  {
                     .addLast(new LengthFieldPrepender(2))
                     .addLast(new RpcEncoder<>(RpcRequest.class, serializeProtocol))
                     .addLast(new RpcDecoder<>(RpcResponse.class, serializeProtocol))
-                    .addLast(new ClientHandler());
+                    .addLast(new ClientHandler(rpcClient));
         }
     }
 

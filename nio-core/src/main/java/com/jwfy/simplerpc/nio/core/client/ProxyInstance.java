@@ -24,9 +24,9 @@ public class ProxyInstance implements InvocationHandler {
 
     private RpcClient rpcClient;
 
-    private Class clazz;
+    private Class<?> clazz;
 
-    public ProxyInstance(RpcClient client, Class clazz) {
+    public ProxyInstance(RpcClient client, Class<?> clazz) {
         this.rpcClient = client;
         this.clazz = clazz;
     }
@@ -47,14 +47,14 @@ public class ProxyInstance implements InvocationHandler {
         request.setArguments(args);
 
         boolean hasResult = !method.getReturnType().equals(Void.TYPE);
-        RpcResponse response = null;
+        RpcResponse<?> response = null;
 
         // 没有另外加filter或者配置重试次数，但是应该把超时时间加上
         Future<Channel> fc = this.rpcClient.acquireChannel(socketAddress);
         Channel channel = fc.get();
 
         logger.debug("获取将使用的channel:{}", channel);
-        RpcResponseFuture future = RequestManager.getInstance().send(channel, request, hasResult);
+        RpcResponseFuture future = this.rpcClient.send(channel, request, hasResult);
         response = future.getResponse();
         if (response.getError()) {
             logger.error(response.getErrorMessage());

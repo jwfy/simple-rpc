@@ -17,6 +17,12 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse>  {
 
     private static final Logger logger = LoggerFactory.getLogger(ClientHandler.class);
 
+    private RpcClient rpcClient;
+
+    public ClientHandler(RpcClient rpcClient) {
+        this.rpcClient = rpcClient;
+    }
+
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
         logger.debug("注册成功 channel:{}", ctx.channel());
@@ -45,7 +51,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse>  {
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcResponse response) throws Exception {
-        RequestManager.getInstance().setResponse(response);
+        this.rpcClient.setResponse(response);
         logger.debug("收到结果 :{}", response);
     }
 
